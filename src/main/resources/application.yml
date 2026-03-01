@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: service1
+          uri: http://localhost:8081
+          predicates:
+            - Path=/service1/**
+        - id: service2
+          uri: http://localhost:8082
+          predicates:
+            - Path=/service2/**
