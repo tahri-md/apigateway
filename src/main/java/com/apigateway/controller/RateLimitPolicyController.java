@@ -3,6 +3,7 @@ package com.apigateway.controller;
 import com.apigateway.dto.RateLimitPolicyDto;
 import com.apigateway.model.RateLimitPolicy;
 import com.apigateway.service.RateLimitPolicyService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class RateLimitPolicyController {
     }
 
     @PostMapping
-    public ResponseEntity<RateLimitPolicyDto> createPolicy(@RequestBody RateLimitPolicyDto dto) {
+    public ResponseEntity<RateLimitPolicyDto> createPolicy(@Valid @RequestBody RateLimitPolicyDto dto) {
         return ResponseEntity.ok(rateLimitPolicyService.createPolicy(dto));
     }
 
@@ -36,7 +37,7 @@ public class RateLimitPolicyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RateLimitPolicyDto> updatePolicy(@PathVariable UUID id, @RequestBody RateLimitPolicyDto dto) {
+    public ResponseEntity<RateLimitPolicyDto> updatePolicy(@PathVariable UUID id, @Valid @RequestBody RateLimitPolicyDto dto) {
         dto.setId(id);
         return ResponseEntity.ok(rateLimitPolicyService.updatePolicy(dto));
     }

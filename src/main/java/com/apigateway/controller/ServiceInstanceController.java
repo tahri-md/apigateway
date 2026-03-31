@@ -1,10 +1,13 @@
 package com.apigateway.controller;
 
+import com.apigateway.dto.ServiceInstanceDto;
 import com.apigateway.model.ServiceInstance;
 import com.apigateway.service.ServiceInstanceService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -34,7 +37,18 @@ public class ServiceInstanceController {
     }
 
     @PostMapping
-    public ResponseEntity<ServiceInstance> save(@RequestBody ServiceInstance instance) {
+    public ResponseEntity<ServiceInstance> save(@Valid @RequestBody ServiceInstanceDto dto) {
+        ServiceInstance instance = new ServiceInstance();
+        instance.setId(dto.getId());
+        instance.setServiceName(dto.getServiceName());
+        instance.setHost(dto.getHost());
+        instance.setPort(dto.getPort());
+        instance.setHealthStatus(dto.getHealthStatus());
+        instance.setWeight(dto.getWeight());
+        instance.setMetadata(dto.getMetadata());
+        instance.setCreatedAt(LocalDateTime.now());
+        instance.setLastUpdated(LocalDateTime.now());
+        
         return ResponseEntity.ok(service.save(instance));
     }
 

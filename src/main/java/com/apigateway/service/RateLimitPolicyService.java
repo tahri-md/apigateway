@@ -1,6 +1,7 @@
 package com.apigateway.service;
 
 import com.apigateway.dto.RateLimitPolicyDto;
+import com.apigateway.model.RateLimitAlgorithmType;
 import com.apigateway.model.RateLimitPolicy;
 import com.apigateway.model.RateLimitState;
 import com.apigateway.ratelimit.RateLimiterAlgorithm;
@@ -77,6 +78,7 @@ public class RateLimitPolicyService {
                 .limitCount(policy.getLimitCount())
                 .windowDurationSeconds(policy.getWindowDurationSeconds())
                 .perType(policy.getPerType())
+                .algorithmType(policy.getAlgorithmType() != null ? policy.getAlgorithmType().name() : null)
                 .createdAt(policy.getCreatedAt())
                 .build();
     }
@@ -88,6 +90,7 @@ public class RateLimitPolicyService {
                 .limitCount(dto.getLimitCount())
                 .windowDurationSeconds(dto.getWindowDurationSeconds())
                 .perType(dto.getPerType())
+                .algorithmType(dto.getAlgorithmType() != null ? RateLimitAlgorithmType.valueOf(dto.getAlgorithmType()) : RateLimitAlgorithmType.FIXED_WINDOW)
                 .createdAt(dto.getCreatedAt())
                 .build();
     }
