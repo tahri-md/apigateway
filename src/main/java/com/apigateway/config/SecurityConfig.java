@@ -40,6 +40,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         // API endpoints require ADMIN or GATEWAY role
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "GATEWAY")
