@@ -1,7 +1,6 @@
 package com.apigateway.model;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -27,11 +26,11 @@ public class AuditLog {
 
     @Lob
     @Column(name = "old_value", columnDefinition = "TEXT")
-    private JsonNode oldValue;
+    private String oldValue;
 
     @Lob
     @Column(name = "new_value", columnDefinition = "TEXT")
-    private JsonNode newValue;
+    private String newValue;
 
     @Column(name = "changed_by", length = 255)
     private String changedBy;
@@ -47,8 +46,8 @@ public class AuditLog {
     public String getAction() { return action; }
     public String getEntityType() { return entityType; }
     public String getEntityId() { return entityId; }
-    public JsonNode getOldValue() { return oldValue; }
-    public JsonNode getNewValue() { return newValue; }
+    public String getOldValue() { return oldValue; }
+    public String getNewValue() { return newValue; }
     public String getChangedBy() { return changedBy; }
     public LocalDateTime getChangedAt() { return changedAt; }
 
@@ -57,8 +56,8 @@ public class AuditLog {
     public void setAction(String action) { this.action = action; }
     public void setEntityType(String entityType) { this.entityType = entityType; }
     public void setEntityId(String entityId) { this.entityId = entityId; }
-    public void setOldValue(JsonNode oldValue) { this.oldValue = oldValue; }
-    public void setNewValue(JsonNode newValue) { this.newValue = newValue; }
+    public void setOldValue(String oldValue) { this.oldValue = oldValue; }
+    public void setNewValue(String newValue) { this.newValue = newValue; }
     public void setChangedBy(String changedBy) { this.changedBy = changedBy; }
     public void setChangedAt(LocalDateTime changedAt) { this.changedAt = changedAt; }
 }

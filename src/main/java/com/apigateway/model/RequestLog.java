@@ -1,7 +1,6 @@
 package com.apigateway.model;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -34,7 +33,7 @@ public class RequestLog {
 
     @Lob
     @Column(name = "query_params", columnDefinition = "TEXT")
-    private JsonNode queryParams;
+    private String queryParams;
 
     @Column(name = "routed_to_service", length = 100)
     private String routedToService;
@@ -59,11 +58,11 @@ public class RequestLog {
 
     @Lob
     @Column(name = "request_headers", columnDefinition = "TEXT")
-    private JsonNode requestHeaders;
+    private String requestHeaders;
 
     @Lob
     @Column(name = "response_headers", columnDefinition = "TEXT")
-    private JsonNode responseHeaders;
+    private String responseHeaders;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -78,7 +77,7 @@ public class RequestLog {
     public String getIpAddress() { return ipAddress; }
     public String getMethod() { return method; }
     public String getPath() { return path; }
-    public JsonNode getQueryParams() { return queryParams; }
+    public String getQueryParams() { return queryParams; }
     public String getRoutedToService() { return routedToService; }
     public String getRoutedToInstance() { return routedToInstance; }
     public Integer getStatusCode() { return statusCode; }
@@ -86,8 +85,8 @@ public class RequestLog {
     public Integer getRateLimitRemaining() { return rateLimitRemaining; }
     public String getCircuitBreakerState() { return circuitBreakerState; }
     public String getErrorMessage() { return errorMessage; }
-    public JsonNode getRequestHeaders() { return requestHeaders; }
-    public JsonNode getResponseHeaders() { return responseHeaders; }
+    public String getRequestHeaders() { return requestHeaders; }
+    public String getResponseHeaders() { return responseHeaders; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
     // Manual setters
@@ -97,7 +96,7 @@ public class RequestLog {
     public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
     public void setMethod(String method) { this.method = method; }
     public void setPath(String path) { this.path = path; }
-    public void setQueryParams(JsonNode queryParams) { this.queryParams = queryParams; }
+    public void setQueryParams(String queryParams) { this.queryParams = queryParams; }
     public void setRoutedToService(String routedToService) { this.routedToService = routedToService; }
     public void setRoutedToInstance(String routedToInstance) { this.routedToInstance = routedToInstance; }
     public void setStatusCode(Integer statusCode) { this.statusCode = statusCode; }
@@ -105,7 +104,7 @@ public class RequestLog {
     public void setRateLimitRemaining(Integer rateLimitRemaining) { this.rateLimitRemaining = rateLimitRemaining; }
     public void setCircuitBreakerState(String circuitBreakerState) { this.circuitBreakerState = circuitBreakerState; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
-    public void setRequestHeaders(JsonNode requestHeaders) { this.requestHeaders = requestHeaders; }
-    public void setResponseHeaders(JsonNode responseHeaders) { this.responseHeaders = responseHeaders; }
+    public void setRequestHeaders(String requestHeaders) { this.requestHeaders = requestHeaders; }
+    public void setResponseHeaders(String responseHeaders) { this.responseHeaders = responseHeaders; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

@@ -1,15 +1,14 @@
 package com.apigateway.config;
 
-import com.apigateway.model.*;
-import com.apigateway.repository.*;
+import com.apigateway.model.RequestLog;
+import com.apigateway.model.AuditLog;
+import com.apigateway.repository.RequestLogRepository;
+import com.apigateway.repository.AuditLogRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Configuration
 public class DataInitializer {
@@ -17,10 +16,7 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initializeData(
             RequestLogRepository requestLogRepository,
-            AuditLogRepository auditLogRepository,
-            ServiceInstanceRepository serviceInstanceRepository,
-            RouteRepository routeRepository,
-            RateLimitPolicyRepository rateLimitPolicyRepository) {
+            AuditLogRepository auditLogRepository) {
         return args -> {
             // Initialize with test data if needed
             if (requestLogRepository.count() == 0) {
@@ -29,15 +25,10 @@ public class DataInitializer {
             if (auditLogRepository.count() == 0) {
                 initializeAuditLogs(auditLogRepository);
             }
-            if (serviceInstanceRepository.count() == 0) {
-                initializeServiceInstances(serviceInstanceRepository);
-            }
         };
     }
 
     private void initializeRequestLogs(RequestLogRepository repository) {
-        ObjectMapper mapper = new ObjectMapper();
-        
         RequestLog log1 = new RequestLog();
         log1.setRequestId("req-001");
         log1.setUserId("user1");
@@ -85,27 +76,5 @@ public class DataInitializer {
         audit2.setChangedBy("admin");
         audit2.setChangedAt(LocalDateTime.now().minusHours(1));
         repository.save(audit2);
-    }
-
-    private void initializeServiceInstances(ServiceInstanceRepository repository) {
-        ServiceInstance instance1 = new ServiceInstance();
-        instance1.setId("user-instance-1");
-        instance1.setServiceName("UserService");
-        instance1.setHost("user-service.local");
-        instance1.setPort(8081);
-        instance1.setHealthStatus("UP");
-        instance1.setWeight(1);
-        instance1.setLastHeartbeat(LocalDateTime.now());
-        repository.save(instance1);
-
-        ServiceInstance instance2 = new ServiceInstance();
-        instance2.setId("product-instance-1");
-        instance2.setServiceName("ProductService");
-        instance2.setHost("product-service.local");
-        instance2.setPort(8082);
-        instance2.setHealthStatus("UP");
-        instance2.setWeight(1);
-        instance2.setLastHeartbeat(LocalDateTime.now());
-        repository.save(instance2);
     }
 }

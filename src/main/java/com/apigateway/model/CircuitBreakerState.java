@@ -29,7 +29,7 @@ public class CircuitBreakerState {
     @Column(name = "failure_count")
     private Integer failureCount = 0;
 
-    @Column(name = "failure_rate", precision = 5, scale = 2)
+    @Column(name = "failure_rate")
     private Double failureRate = 0.0;
 
     @Column(name = "last_failure_time")
