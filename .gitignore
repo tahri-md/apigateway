@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Test Scripts ###
+test-api*.sh
+.attach_pid*
+
 ### STS ###
 .apt_generated
 .classpath
