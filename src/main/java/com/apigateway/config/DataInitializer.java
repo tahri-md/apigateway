@@ -2,114 +2,110 @@ package com.apigateway.config;
 
 import com.apigateway.model.*;
 import com.apigateway.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Component
-public class DataInitializer implements ApplicationRunner {
-    
-    @Autowired
-    private RouteRepository routeRepository;
-    
-    @Autowired
-    private RouteTargetRepository routeTargetRepository;
-    
-    @Autowired
-    private RateLimitPolicyRepository rateLimitPolicyRepository;
-    
-    @Autowired
-    private ServiceInstanceRepository serviceInstanceRepository;
-    
-    @Autowired
-    private RateLimitStateRepository rateLimitStateRepository;
-    
-    @Autowired
-    private AuditLogRepository auditLogRepository;
+@Configuration
+public class DataInitializer {
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        if (routeRepository.count() == 0) {
-            initializeTestData();
-        }
+    @Bean
+    public CommandLineRunner initializeData(
+            RequestLogRepository requestLogRepository,
+            AuditLogRepository auditLogRepository,
+            ServiceInstanceRepository serviceInstanceRepository,
+            RouteRepository routeRepository,
+            RateLimitPolicyRepository rateLimitPolicyRepository) {
+        return args -> {
+            // Initialize with test data if needed
+            if (requestLogRepository.count() == 0) {
+                initializeRequestLogs(requestLogRepository);
+            }
+            if (auditLogRepository.count() == 0) {
+                initializeAuditLogs(auditLogRepository);
+            }
+            if (serviceInstanceRepository.count() == 0) {
+                initializeServiceInstances(serviceInstanceRepository);
+            }
+        };
     }
 
-    private void initializeTestData() {
-        try {
-            // Initialize test routes
-            Route route1 = Route.builder()
-                    .id(UUID.randomUUID())
-                    .path("/api/users")
-                    .serviceName("user-service")
-                    .timeoutMs(5000)
-                    .retryCount(3)
-                    .authRequired(true)
-                    .authProvider("JWT")
-                    .isActive(true)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-            routeRepository.save(route1);
+    private void initializeRequestLogs(RequestLogRepository repository) {
+        ObjectMapper mapper = new ObjectMapper();
+        
+        RequestLog log1 = new RequestLog();
+        log1.setRequestId("req-001");
+        log1.setUserId("user1");
+        log1.setIpAddress("192.168.1.100");
+        log1.setMethod("GET");
+        log1.setPath("/api/users");
+        log1.setRoutedToService("UserService");
+        log1.setRoutedToInstance("user-instance-1");
+        log1.setStatusCode(200);
+        log1.setResponseTimeMs(150);
+        log1.setRateLimitRemaining(99);
+        log1.setCircuitBreakerState("CLOSED");
+        log1.setCreatedAt(LocalDateTime.now());
+        repository.save(log1);
 
-            Route route2 = Route.builder()
-                    .id(UUID.randomUUID())
-                    .path("/api/orders")
-                    .serviceName("order-service")
-                    .timeoutMs(3000)
-                    .retryCount(2)
-                    .authRequired(true)
-                    .authProvider("OAuth2")
-                    .isActive(true)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-            routeRepository.save(route2);
+        RequestLog log2 = new RequestLog();
+        log2.setRequestId("req-002");
+        log2.setUserId("user2");
+        log2.setIpAddress("192.168.1.101");
+        log2.setMethod("POST");
+        log2.setPath("/api/users");
+        log2.setRoutedToService("UserService");
+        log2.setRoutedToInstance("user-instance-1");
+        log2.setStatusCode(201);
+        log2.setResponseTimeMs(250);
+        log2.setRateLimitRemaining(98);
+        log2.setCircuitBreakerState("CLOSED");
+        log2.setCreatedAt(LocalDateTime.now().minusMinutes(5));
+        repository.save(log2);
+    }
 
-            // Initialize service instances
-            ServiceInstance instance1 = ServiceInstance.builder()
-                    .id("user-service-1")
-                    .serviceName("user-service")
-                    .host("localhost")
-                    .port(8081)
-                    .healthStatus("UP")
-                    .weight(1)
-                    .lastHeartbeat(LocalDateTime.now())
-                    .createdAt(LocalDateTime.now())
-                    .lastUpdated(LocalDateTime.now())
-                    .build();
-            serviceInstanceRepository.save(instance1);
+    private void initializeAuditLogs(AuditLogRepository repository) {
+        AuditLog audit1 = new AuditLog();
+        audit1.setAction("CREATE");
+        audit1.setEntityType("Route");
+        audit1.setEntityId("route-1");
+        audit1.setChangedBy("admin");
+        audit1.setChangedAt(LocalDateTime.now());
+        repository.save(audit1);
 
-            ServiceInstance instance2 = ServiceInstance.builder()
-                    .id("order-service-1")
-                    .serviceName("order-service")
-                    .host("localhost")
-                    .port(8082)
-                    .healthStatus("UP")
-                    .weight(2)
-                    .lastHeartbeat(LocalDateTime.now())
-                    .createdAt(LocalDateTime.now())
-                    .lastUpdated(LocalDateTime.now())
-                    .build();
-            serviceInstanceRepository.save(instance2);
+        AuditLog audit2 = new AuditLog();
+        audit2.setAction("UPDATE");
+        audit2.setEntityType("RateLimitPolicy");
+        audit2.setEntityId("policy-1");
+        audit2.setChangedBy("admin");
+        audit2.setChangedAt(LocalDateTime.now().minusHours(1));
+        repository.save(audit2);
+    }
 
-            // Initialize audit log  entry
-            AuditLog auditLog = new AuditLog();
-            auditLog.setId(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
-            auditLog.setAction("CREATE");
-            auditLog.setEntityType("Route");
-            auditLog.setEntityId(route1.getId().toString());
-            auditLog.setChangedBy("system");
-            auditLog.setChangedAt(LocalDateTime.now());
-            auditLogRepository.save(auditLog);
+    private void initializeServiceInstances(ServiceInstanceRepository repository) {
+        ServiceInstance instance1 = new ServiceInstance();
+        instance1.setId("user-instance-1");
+        instance1.setServiceName("UserService");
+        instance1.setHost("user-service.local");
+        instance1.setPort(8081);
+        instance1.setHealthStatus("UP");
+        instance1.setWeight(1);
+        instance1.setLastHeartbeat(LocalDateTime.now());
+        repository.save(instance1);
 
-            System.out.println("Test data initialized successfully");
-        } catch (Exception e) {
-            System.err.println("Error initializing test data: " + e.getMessage());
-            e.printStackTrace();
-        }
+        ServiceInstance instance2 = new ServiceInstance();
+        instance2.setId("product-instance-1");
+        instance2.setServiceName("ProductService");
+        instance2.setHost("product-service.local");
+        instance2.setPort(8082);
+        instance2.setHealthStatus("UP");
+        instance2.setWeight(1);
+        instance2.setLastHeartbeat(LocalDateTime.now());
+        repository.save(instance2);
     }
 }
