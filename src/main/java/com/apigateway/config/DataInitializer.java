@@ -2,8 +2,10 @@ package com.apigateway.config;
 
 import com.apigateway.model.RequestLog;
 import com.apigateway.model.AuditLog;
+import com.apigateway.model.ServiceInstance;
 import com.apigateway.repository.RequestLogRepository;
 import com.apigateway.repository.AuditLogRepository;
+import com.apigateway.repository.ServiceInstanceRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +18,8 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initializeData(
             RequestLogRepository requestLogRepository,
-            AuditLogRepository auditLogRepository) {
+            AuditLogRepository auditLogRepository,
+            ServiceInstanceRepository serviceInstanceRepository) {
         return args -> {
             // Initialize with test data if needed
             if (requestLogRepository.count() == 0) {
@@ -24,6 +27,9 @@ public class DataInitializer {
             }
             if (auditLogRepository.count() == 0) {
                 initializeAuditLogs(auditLogRepository);
+            }
+            if (serviceInstanceRepository.count() == 0) {
+                initializeServiceInstances(serviceInstanceRepository);
             }
         };
     }
@@ -76,5 +82,40 @@ public class DataInitializer {
         audit2.setChangedBy("admin");
         audit2.setChangedAt(LocalDateTime.now().minusHours(1));
         repository.save(audit2);
+    }
+
+    private void initializeServiceInstances(ServiceInstanceRepository repository) {
+        ServiceInstance instance1 = new ServiceInstance();
+        instance1.setId("user-service-1");
+        instance1.setServiceName("UserService");
+        instance1.setHost("localhost");
+        instance1.setPort(8081);
+        instance1.setHealthStatus("HEALTHY");
+        instance1.setWeight(100);
+        instance1.setCreatedAt(LocalDateTime.now());
+        instance1.setLastUpdated(LocalDateTime.now());
+        repository.save(instance1);
+
+        ServiceInstance instance2 = new ServiceInstance();
+        instance2.setId("user-service-2");
+        instance2.setServiceName("UserService");
+        instance2.setHost("localhost");
+        instance2.setPort(8082);
+        instance2.setHealthStatus("HEALTHY");
+        instance2.setWeight(100);
+        instance2.setCreatedAt(LocalDateTime.now());
+        instance2.setLastUpdated(LocalDateTime.now());
+        repository.save(instance2);
+
+        ServiceInstance instance3 = new ServiceInstance();
+        instance3.setId("payment-service-1");
+        instance3.setServiceName("PaymentService");
+        instance3.setHost("localhost");
+        instance3.setPort(8083);
+        instance3.setHealthStatus("HEALTHY");
+        instance3.setWeight(100);
+        instance3.setCreatedAt(LocalDateTime.now());
+        instance3.setLastUpdated(LocalDateTime.now());
+        repository.save(instance3);
     }
 }

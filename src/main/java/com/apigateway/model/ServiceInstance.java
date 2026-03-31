@@ -38,7 +38,7 @@ public class ServiceInstance {
     @Column(name = "last_heartbeat")
     private LocalDateTime lastHeartbeat;
 
-    @Column(name = "metadata", columnDefinition = "jsonb")
+    @Column(name = "metadata", columnDefinition = "TEXT")
     @Convert(converter = MetadataConverter.class)
     private Map<String, Object> metadata;
 
