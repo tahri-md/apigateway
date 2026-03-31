@@ -20,19 +20,26 @@ A comprehensive Spring Boot-based API Gateway with request logging, audit tracki
 
 ### Production Ready
 - ✅ **Docker Support** - Dockerfile and docker-compose for containerized deployment
-- ✅ **Database Profiles** - Support for H2 (dev) and PostgreSQL (prod)
+- ✅ **Database Profiles** - Support for H2 (dev), PostgreSQL & MySQL (prod)
 - ✅ **Unit Tests** - Service layer unit tests with Mockito
 - ✅ **Integration Tests** - End-to-end API testing
-- ✅ **Health Checks** - Built-in health check endpoints
+- ✅ **Health Checks** - Built-in `/actuator/health` endpoints with custom indicators
+- ✅ **Metrics & Monitoring** - Prometheus metrics at `/actuator/prometheus`
+- ✅ **Distributed Tracing** - Spring Cloud Sleuth integration with Jaeger support
+- ✅ **Structured Logging** - JSON-formatted logs with Logback, per-module configuration
+- ✅ **Error Handling** - Centralized exception handling with consistent error responses
 
 ## Technology Stack
 
 - **Framework**: Spring Boot 4.0.3
 - **Java Version**: 21
-- **Database**: H2 (dev), PostgreSQL (prod)
+- **Database**: H2 (dev), PostgreSQL (prod), MySQL (prod)
 - **Cache**: Redis
 - **Security**: Spring Security + JWT (JJWT)
 - **Testing**: JUnit 5, Mockito
+- **Monitoring**: Prometheus + Grafana + Jaeger
+- **Logging**: Logback with Logstash encoder (JSON)
+- **Distributed Tracing**: Spring Cloud Sleuth + OpenTelemetry
 - **Build**: Maven
 - **Container**: Docker & Docker Compose
 
@@ -152,3 +159,95 @@ curl -H "Authorization: Bearer <token>" http://localhost:8080/api/logs/requests
 ### Service Instances
 - `GET /service-instances` - Get all instances
 - `GET /service-instances/service/{serviceName}` - Get by service name
+
+## Monitoring & Observability
+
+### Health Checks
+```bash
+# Liveness probe
+curl http://localhost:8080/actuator/health/liveness
+
+# Readiness probe
+curl http://localhost:8080/actuator/health/readiness
+
+# Full health details
+curl http://localhost:8080/actuator/health
+```
+
+### Metrics & Prometheus
+```bash
+# View all metrics in Prometheus format
+curl http://localhost:8080/actuator/prometheus
+
+# Metrics include:
+# - JVM metrics (memory, GC, threads)
+# - Process metrics (CPU, uptime)
+# - HTTP request metrics
+# - Custom application metrics
+```
+
+### Distributed Tracing (Jaeger)
+```bash
+# Access Jaeger UI at http://localhost:16686
+# View traces, spans, and latency data
+# Track requests across microservices
+```
+
+### Grafana Dashboards
+```bash
+# Access Grafana at http://localhost:3000
+# Default credentials: admin/admin
+# Query Prometheus data with Grafana
+```
+
+## Logging
+
+### Structured Logging
+Logs are output in JSON format for easy parsing by centralized logging systems:
+
+```json
+{
+  "timestamp": "2026-03-31T22:00:00.000Z",
+  "level": "INFO",
+  "logger": "com.apigateway.service.RequestLogService",
+  "message": "Request logged successfully",
+  "traceId": "abc123...",
+  "spanId": "xyz789...",
+  "app": "apigateway"
+}
+```
+
+### Log Levels per Module
+Configure in `logback-spring.xml`:
+- `com.apigateway` - INFO (general logging)
+- `com.apigateway.security` - DEBUG (authentication details)
+- `com.apigateway.service` - INFO (business logic)
+- `org.springframework.web` - INFO (HTTP requests)
+
+### Log Files
+- Location: `logs/apigateway.log`
+- Rolling: Daily + 10MB size limit
+- Retention: 30 days
+
+## Error Handling
+
+All errors are returned in consistent JSON format:
+
+```json
+{
+  "status": 400,
+  "message": "Invalid request parameters",
+  "error": "Validation Error",
+  "path": "/api/logs/requests",
+  "timestamp": "2026-03-31T22:00:00",
+  "traceId": "abc123..."
+}
+```
+
+### HTTP Status Codes
+- `200` - Success
+- `400` - Bad Request (validation errors)
+- `401` - Unauthorized (missing/invalid token)
+- `403` - Forbidden (insufficient permissions)
+- `404` - Not Found
+- `500` - Internal Server Error
