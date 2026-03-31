@@ -2,7 +2,6 @@ package com.apigateway.controller;
 
 import com.apigateway.model.CircuitBreakerState;
 import com.apigateway.service.CircuitBreakerService;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -11,9 +10,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/circuit-breaker")
-@RequiredArgsConstructor
 public class CircuitBreakerController {
     private final CircuitBreakerService circuitBreakerService;
+
+    public CircuitBreakerController(CircuitBreakerService circuitBreakerService) {
+        this.circuitBreakerService = circuitBreakerService;
+    }
 
     @GetMapping("/state/{serviceName}")
     public ResponseEntity<CircuitBreakerState> getState(@PathVariable String serviceName) {

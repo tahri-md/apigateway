@@ -3,7 +3,6 @@ package com.apigateway.controller;
 import com.apigateway.dto.RateLimitPolicyDto;
 import com.apigateway.model.RateLimitPolicy;
 import com.apigateway.service.RateLimitPolicyService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +12,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/rate-limit-policies")
-@RequiredArgsConstructor
 public class RateLimitPolicyController {
     private final RateLimitPolicyService rateLimitPolicyService;
+
+    public RateLimitPolicyController(RateLimitPolicyService rateLimitPolicyService) {
+        this.rateLimitPolicyService = rateLimitPolicyService;
+    }
 
     @PostMapping
     public ResponseEntity<RateLimitPolicyDto> createPolicy(@RequestBody RateLimitPolicyDto dto) {

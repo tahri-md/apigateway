@@ -2,7 +2,6 @@ package com.apigateway.controller;
 
 import com.apigateway.model.ServiceInstance;
 import com.apigateway.service.ServiceInstanceService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,9 +9,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/service-instances")
-@RequiredArgsConstructor
 public class ServiceInstanceController {
     private final ServiceInstanceService service;
+
+    public ServiceInstanceController(ServiceInstanceService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<List<ServiceInstance>> getAll() {
