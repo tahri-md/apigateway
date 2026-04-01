@@ -3,11 +3,16 @@ package com.apigateway.service;
 import com.apigateway.dto.RouteDto;
 import com.apigateway.model.Route;
 import com.apigateway.repository.RouteRepository;
+import com.apigateway.repository.RouteTargetRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -15,28 +20,98 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RouteService {
     private final RouteRepository routeRepository;
+    private final RouteTargetRepository routeTargetRepository;
 
     public RouteDto createRoute(RouteDto dto) {
-        Route route = toEntity(dto);
+        Route route = Route.builder()
+                .id(UUID.randomUUID())
+                .path(dto.getPath())
+                .serviceName(dto.getServiceName())
+                .timeoutMs(dto.getTimeoutMs())
+                .retryCount(dto.getRetryCount())
+                .authRequired(dto.isAuthRequired())
+                .authProvider(dto.getAuthProvider())
+                .isActive(dto.isActive())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
         Route saved = routeRepository.save(route);
         return toDto(saved);
     }
 
-    public Optional<RouteDto> getRouteById(UUID id) {
-        return routeRepository.findById(id).map(this::toDto);
+    public RouteDto getRoute(UUID id) {
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Route not found with id: " + id));
+        return toDto(route);
     }
 
-    public List<RouteDto> getAllRoutes() {
-        return routeRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
+    public Page<RouteDto> getAllRoutes(Pageable pageable) {
+        Page<Route> routes = routeRepository.findAll(pageable);
+        List<RouteDto> dtos = routes.getContent().stream().map(this::toDto).collect(Collectors.toList());
+        return new PageImpl<>(dtos, pageable, routes.getTotalElements());
     }
 
-    public RouteDto updateRoute(RouteDto dto) {
-        Route route = toEntity(dto);
+    public List<RouteDto> getActiveRoutes() {
+        return routeRepository.findByIsActive(true).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<RouteDto> findByPath(String path) {
+        return routeRepository.findByPath(path).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<RouteDto> findByServiceName(String serviceName) {
+        return routeRepository.findByServiceName(serviceName).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public RouteDto updateRoute(UUID id, RouteDto dto) {
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Route not found with id: " + id));
+        
+        route.setPath(dto.getPath());
+        route.setServiceName(dto.getServiceName());
+        route.setTimeoutMs(dto.getTimeoutMs());
+        route.setRetryCount(dto.getRetryCount());
+        route.setAuthRequired(dto.isAuthRequired());
+        route.setAuthProvider(dto.getAuthProvider());
+        route.setActive(dto.isActive());
+        route.setUpdatedAt(LocalDateTime.now());
+        
+        Route updated = routeRepository.save(route);
+        return toDto(updated);
+    }
+
+    public RouteDto activateRoute(UUID id) {
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Route not found with id: " + id));
+        route.setActive(true);
+        route.setUpdatedAt(LocalDateTime.now());
+        Route updated = routeRepository.save(route);
+        return toDto(updated);
+    }
+
+    public RouteDto deactivateRoute(UUID id) {
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Route not found with id: " + id));
+        route.setActive(false);
+        route.setUpdatedAt(LocalDateTime.now());
         Route updated = routeRepository.save(route);
         return toDto(updated);
     }
 
     public void deleteRoute(UUID id) {
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Route not found with id: " + id));
+        
+        // Delete all associated route targets first
+        routeTargetRepository.deleteByRouteId(id);
+        
+        // Then delete the route
         routeRepository.deleteById(id);
     }
 
@@ -52,21 +127,6 @@ public class RouteService {
                 .isActive(route.isActive())
                 .createdAt(route.getCreatedAt())
                 .updatedAt(route.getUpdatedAt())
-                .build();
-    }
-
-    private Route toEntity(RouteDto dto) {
-        return Route.builder()
-                .id(dto.getId())
-                .path(dto.getPath())
-                .serviceName(dto.getServiceName())
-                .timeoutMs(dto.getTimeoutMs())
-                .retryCount(dto.getRetryCount())
-                .authRequired(dto.isAuthRequired())
-                .authProvider(dto.getAuthProvider())
-                .isActive(dto.isActive())
-                .createdAt(dto.getCreatedAt())
-                .updatedAt(dto.getUpdatedAt())
                 .build();
     }
 }
